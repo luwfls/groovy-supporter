@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-select.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/codemirror.css"/>
+    <link rel="stylesheet" type="text/css" href="css/dracula.css"/>
+
+</head>
+
+<body>
+
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header  navbar-right">
+            <div class="navbar-brand" href="#">Groovy脚本管理系统</div>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="#" id="login_a" onclick="showLogin()"><span class="glyphicon glyphicon-log-in"></span>
+                    登录</a></li>
+                <li><a href="#" id="user_a" style="display: none"><span class="glyphicon glyphicon-user"></span> xxx</a>
+                </li>
+                <li><a href="#" id="logout_a" style="display: none" onclick="logOut()"><span
+                        class="glyphicon glyphicon-log-out"></span>
+                    登出</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title-other">
+                    <h3>选择切点</h3>
+                </div>
+                <hr style="border: solid 1px #1ab394">
+                <div class="ibox-content">
+                    <form action="" id="uid-form" class="form-horizontal" role="form">
+                        <div class="form-group">
+                            <select class="form-control form-control-lg" onchange="drawMethod()"
+                                    id="select-system"></select>
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control form-control-lg" onchange="refresh()"
+                                    id="select-method"></select>
+                        </div>
+                        <div class="form-group">
+                            <div><label for="table">可用参数列表</label></div>
+                            <table id="table"></table>
+                        </div>
+                        <div class="form-group">
+                            <div><label for="table-property">可用成员变量</label></div>
+                            <table id="table-property"></table>
+                        </div>
+                    </form>
+                    <hr>
+
+                </div>
+
+                <div class="ibox-title">
+                    <h3>脚本</h3>
+                </div>
+                <hr style="border: solid 1px #1ab394">
+                <div class="ibox-content">
+                    <div class="form-group">
+                        <label class="radio-inline">
+                            <input type="radio" name="executeTargetMethod" id="y" value="1" checked> 执行目标方法
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="executeTargetMethod" id="n" value="0"> 不执行目标方法
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="radio-inline">
+                            <input type="radio" name="aspectType" id="before" value="1" checked> 前置切面
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="aspectType" id="after"  value="2"> 后置切面
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="aspectType" id="around"  value="3"> 环绕切面
+                        </label>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-default" onclick="autoSaveScript()">加载脚本</button>
+                        <button class="btn btn-default" onclick="unloadScript()">卸载脚本</button>
+                    </div>
+                    <form class="form-group"><textarea id="code" name="code"></textarea></form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="login-modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h4>请登录</h4>
+                <h5 class="text-warning" id="login-message"></h5>
+            </div>
+            <div class="modal-body">
+                <form class="bs-example bs-example-form" id="login-form" role="form">
+
+                    <div class="input-group">
+                        <span class="input-group-addon">账号</span>
+                        <input id="username" class="form-control" name="username" type="text" placeholder="员工263"/>
+                    </div>
+                    <br>
+                    <div class="input-group">
+                        <span class="input-group-addon">密码</span>
+                        <input class="form-control" id="password" name="password" type="password"/>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">取消</button>
+                <button class="btn btn-primary" onclick="doLogin()">登陆</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="tip-modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+                <h4>提示</h4>
+            </div>
+            <div class="modal-body">
+                <p class="text-center" id="tip-p"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="js/jquery-2.1.1.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/bootstrap-table.js"></script>
+<script src="js/bootstrap-table-formatter.js"></script>
+<script src="js/bootstrap-table-zh-CN.js"></script>
+<script src="js/bootbox.min.js"></script>
+<script src="js/jquery.cookie.js"></script>
+<script src="js/bootstrap-select.min.js"></script>
+<script src="js/codemirror.js"></script>
+<script src="js/groovy.js"></script>
+
+<script>
+    var editor;
+
+    function drawCode() {
+        editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            lineNumbers: true,
+            matchBrackets: true,
+            mode: "text/x-groovy",
+            theme: "dracula"
+        });
+        editor.setSize('1160px', '950px');
+        //5秒自动保存一次
+        // setInterval(autoSaveScript, 5000);
+    }
+
+    $(function () {
+        checkLogin();
+        drawPoint();
+        drawCode();
+    });
+
+    function showTip(message) {
+        $("#tip-p").html(message);
+        $("#tip-modal").modal('show');
+    }
+
+
+    function drawPoint() {
+        drawSystem();
+    }
+
+    function drawSystem() {
+        $.ajax({
+            url: "manager/listSystem",
+            method: "POST",
+            success: function (result) {
+                if (result.flag === 0) {
+                    var $select_system = $("#select-system");
+                    $select_system.innerHTML = "";
+                    data = result.data;
+                    for (i in data) {
+                        $select_system.append("<option value='" + data[i].appKey + "'>" + data[i].appName + "</option>")
+                    }
+                    drawMethod();
+                } else {
+                    switch (result.message) {
+                        case "nologin":
+                            showLogin();
+                            break;
+                        default:
+                            showTip(result.message);
+                    }
+                }
+            }
+        });
+    }
+
+    function drawMethod() {
+        var appKey = $("#select-system").val();
+        var $select_method = $("#select-method");
+        $select_method.html("").val("");
+        $.ajax({
+            url: "manager/listMethod",
+            method: "POST",
+            data: {"appKey": appKey},
+            success: function (result) {
+                if (result.flag === 0) {
+                    if (result.flag === 0) {
+                        data = result.data;
+                        for (i in data) {
+                            $select_method.append("<option classMd5='" + data[i].belongToClassNameMd5 + "' value='" + data[i].methodSignatureMd5 + "'>" + data[i].methodSignature + "</option>")
+                        }
+                        drawParameterTable();
+                        drawProperty();
+                    } else {
+                        switch (data.message) {
+                            case "nologin":
+                                showLogin();
+                                break;
+                            case "nouid":
+                                showTip("未查询到UID")
+                                break;
+                            default:
+                                showTip(data.message);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function checkLogin() {
+        var username = $.cookie("loginUser");
+        if (username) {
+            $("#user_a").html(username);
+            $("#user_a").show();
+            $("#login_a").hide();
+            $("#logout_a").show();
+        } else {
+            showLogin();
+        }
+    }
+
+    function logOut() {
+        $.ajax({
+            url: "auth/logout",
+            method: "POST",
+            data: {
+                "username": $.cookie("loginUser")
+            },
+            success: function (data) {
+                if (data.flag === 0) {
+                    $.cookie("loginUser", "");
+                    $("#user_a").html("");
+                    $("#user_a").hide();
+                    $("#login_a").show();
+                    $("#logout_a").hide();
+                }
+            }
+        });
+    }
+
+    function showLogin() {
+        $("#login-message").html("");
+        $("#login-modal").modal("show");
+    }
+
+    function doLogin() {
+        var loginData = $("#login-form").serialize();
+        $.ajax({
+            url: "auth/login",
+            method: "POST",
+            data: loginData,
+            success: function (data) {
+                if (data.flag === 0) {
+                    $("#user_a").html(data.data);
+                    $("#user_a").show();
+                    $("#login_a").hide();
+                    $("#logout_a").show();
+                    $("#login-modal").modal("hide");
+                } else {
+                    $("#login-message").html(data.message);
+                }
+            }
+        });
+    }
+
+    function refresh() {
+        $("#table").bootstrapTable('refresh');
+        $("#table-property").bootstrapTable('refresh');
+        refreshScript();
+    }
+    function refreshScript() {
+        $.ajax({
+            url: "manager/getScript",
+            method: "POST",
+            data: {"methodMd5": $("#select-method").val()},
+            success: function (result) {
+                if (result.flag === 0) {
+                    if (result.flag === 0) {
+                        editor.setValue(result.data.script);
+                    } else {
+                        switch (data.message) {
+                            case "nologin":
+                                showLogin();
+                                break;
+                            default:
+                                showTip(data.message);
+                        }
+                    }
+                }
+            }
+        });
+    }
+    function autoSaveScript() {
+        if(!editor.getValue()){
+            return
+        }
+        $.ajax({
+            url: "manager/saveScript",
+            method: "POST",
+            data: {
+                "methodMd5": $("#select-method").val(),
+                "script": editor.getValue(),
+                "executeTargetMethod": $("input[name='executeTargetMethod']:checked").val(),
+                "aspectType": $("input[name='aspectType']:checked").val()
+            },
+            success: function (result) {
+                if (result.flag === 0) {
+                    if (result.flag === 0) {
+                        showTip("脚本加载成功")
+                    } else {
+                        switch (data.message) {
+                            case "nologin":
+                                showLogin();
+                                break;
+                            default:
+                                showTip(data.message);
+                        }
+                    }
+                }
+            }
+        });
+    }
+    function unloadScript() {
+        $.ajax({
+            url: "manager/unloadScript",
+            method: "POST",
+            data: {
+                "methodMd5": $("#select-method").val(),
+                "executeTargetMethod": $("input[name='executeTargetMethod']:checked").val(),
+            },
+            success: function (result) {
+                if (result.flag === 0) {
+                    if (result.flag === 0) {
+                        showTip("脚本卸载成功")
+                    } else {
+                        switch (data.message) {
+                            case "nologin":
+                                showLogin();
+                                break;
+                            default:
+                                showTip(data.message);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function drawParameterTable() {
+        var columns = [
+            {
+                field: "parameterName",
+                title: "参数名称"
+            },
+            {
+                field: "parameterClassName",
+                title: "参数类型"
+            },{
+                field: "parameterDoc",
+                title: "使用文档（开发中）"
+            }
+        ];
+
+        $("#table").bootstrapTable({
+            url: "manager/listParameter",
+            classes: "table table-bordered table-hover",
+            columns: columns,
+            pagination: true,
+            sidePagination: "server",
+            queryParamsType: "undefined",
+            queryParams: function queryParams(params) { //设置查询参数
+                var param = {
+                    pageNumber: params.pageNumber,
+                    pageSize: params.pageSize,
+                    searchText: params.searchText,
+                    methodSignatureMd5: $("#select-method").val()
+                };
+                return param;
+            },
+            pageNumber: 1,
+            pageSize: 10,
+            striped: true,
+            search: false
+        });
+    }
+
+    function drawProperty() {
+        var columns = [
+            {
+                field: "propertyName",
+                title: "成员名称"
+            },
+            {
+                field: "propertyClassName",
+                title: "成员类型"
+            },{
+                field: "propertyDoc",
+                title: "使用文档（开发中）"
+            }
+        ];
+
+        $("#table-property").bootstrapTable({
+            url: "manager/listProperty",
+            classes: "table table-bordered table-hover",
+            columns: columns,
+            pagination: true,
+            sidePagination: "server",
+            queryParamsType: "undefined",
+            queryParams: function queryParams(params) { //设置查询参数
+                var param = {
+                    pageNumber: params.pageNumber,
+                    pageSize: params.pageSize,
+                    searchText: params.searchText,
+                    classMd5: $("#select-method").find("option:selected").attr("classMd5")
+                };
+                return param;
+            },
+            pageNumber: 1,
+            pageSize: 10,
+            striped: true,
+            search: false
+        });
+    }
+
+</script>
+</body>
+
+</html>

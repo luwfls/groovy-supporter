@@ -1,0 +1,12 @@
+spring:
+  mvc:
+    static-path-pattern: /**
+  resources:
+    static-locations: classpath:/static
+  datasource:
+    url: jdbc:mysql://172.16.100.70:3306/groovy_supporter_manager?useSSL=false&useUnicode=true&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true&useAffectedRows=true
+    username: greatbear
+    password: Sd@Im&e17LH
+    driverClassName: com.mysql.cj.jdbc.Driver
+mybatis:
+  mapper-locations: classpath:mapper/*.xml

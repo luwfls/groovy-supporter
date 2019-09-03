@@ -1,0 +1,6 @@
+groovy:
+  supporter:
+    appKey: aaa
+    managerServer: http://localhost:8080
+server:
+  port: 8070
